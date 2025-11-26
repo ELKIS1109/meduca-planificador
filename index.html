@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificación Docente MEDUCA</title>
+    
+    <style>
+        /* Estilos CSS (Mantenidos uniformes) */
+        
+        /* Estilos generales (Mantenidos uniformes) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            font-size: 10pt;
+        }
+
+        .contenedor {
+            max-width: 950px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        /* Encabezado de la Aplicación (Mantenido) */
+        .encabezado-app {
+            background-color: #004a99; 
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 3px solid #ccc; 
+            margin-bottom: 20px;
+        }
+        .encabezado-app h1 { margin: 0; font-size: 1.5em; }
+        .encabezado-app h2 { margin: 5px 0 0; font-size: 1.2em; font-style: italic; }
+
+        /* Contenedor del Título en la impresión (Uniformidad y Compactación) */
+        .encabezado-impresion {
+            display: none; 
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #004a99; 
+        }
+        
+        /* ESTILOS CLAVE PARA LA COMPACTACIÓN DEL ENCABEZADO DE IMPRESIÓN */
+        .encabezado-impresion h1, 
+        .encabezado-impresion h2, 
+        .encabezado-impresion h3, 
+        .encabezado-impresion h4 {
+            margin: 0; 
+            padding: 0;
+            line-height: 1.1; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact;
+            color: #004a99; 
+            font-weight: 700; 
+        }
+
+        .encabezado-impresion h1 { font-size: 1em; } 
+        .encabezado-impresion h2 { font-size: 0.9em; margin-bottom: 4px; } 
+        .encabezado-impresion h3 { font-size: 1.05em; color: #333; text-transform: uppercase; } 
+        .encabezado-impresion h4 { 
+            font-size: 0.95em;
+            text-transform: uppercase;
+            border-bottom: 1px solid #999;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Tarjetas y Formularios */
+        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+        form label { display: block; margin-top: 10px; font-weight: 600; color: #004a99; }
+        form input, form select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.9em; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px 20px; }
+        .form-full { grid-column: 1 / 5; } 
+        .grid-span-2 { grid-column: span 2; } 
+        .btn-principal { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; margin-top: 10px; transition: background-color 0.3s; width: 100%; grid-column: 1 / 5; }
+
+        /* Estilo para campos de Solo Lectura */
+        input[readonly] {
+            background-color: #f0f0f0; 
+            color: #666;
+            cursor: default;
+        }
+
+
+        /* Encabezado de la Planificación (Mantenido) */
+        #datos-encabezado {
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            padding: 10px; 
+            border-radius: 4px;
+            margin-bottom: 10px; 
+            font-size: 0.85em; 
+            border-left: 3px solid #004a99;
+            overflow: hidden; 
+        }
+
+        #datos-encabezado p { margin: 0 0 5px 0; line-height: 1.2; }
+        .linea-datos { display: flex; justify-content: space-between; width: 100%; margin-bottom: 5px; }
+        .dato-item { flex-grow: 1; padding-right: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dato-item.tema-central { padding-right: 0; }
+        #datos-encabezado strong { color: #333; }
+
+        /* Tabla de Planificación PRINCIPAL (Matriz de Dosificación) */
+        #tabla-planificacion-final {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            table-layout: fixed;
+            border: 1px solid #333;
+        }
+
+        #tabla-planificacion-final th, #tabla-planificacion-final td { border: 1px solid #ccc; padding: 5px; text-align: left; vertical-align: top; word-wrap: break-word; font-size: 0.8em; }
+        #tabla-planificacion-final thead th { background-color: #004a99; color: white; font-weight: 900; text-align: center; height: 30px; text-transform: uppercase; }
+        #tabla-planificacion-final td ul { margin: 0; padding-left: 15px; list-style-type: disc; }
+        #tabla-planificacion-final td li { margin-bottom: 2px; }
+        
+        /* === Nueva Tabla de Actividades === */
+        #actividades-detalle { margin-top: 20px; margin-bottom: 20px; }
+        #actividades-detalle h5 { font-size: 1em; color: #004a99; border-bottom: 2px solid #004a99; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; }
+        #tabla-actividades-semanales { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
+        #tabla-actividades-semanales th, #tabla-actividades-semanales td { border: 1px solid #aaa; padding: 6px; font-size: 0.85em; vertical-align: top; }
+        #tabla-actividades-semanales thead th { background-color: #f0f0f0; color: #333; font-weight: 700; text-align: center; }
+
+        /* Sección de Firmas (Mantenida) */
+        #firmas { margin-top: 30px; padding-top: 15px; display: flex; justify-content: space-around; text-align: center; font-size: 0.9em; width: 100%; }
+        .firma-columna { width: 35%; }
+        .firma-columna hr { border: 0; border-top: 1px solid #000; margin: 0 auto 5px auto; width: 80%; }
+
+
+        /* CONFIGURACIÓN DE IMPRESIÓN (Mantenida) */
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm; 
+            @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #555; }
+        }
+
+        @media print {
+            body { background-color: white; font-size: 8pt; }
+            .contenedor { max-width: 100%; width: 100%; margin: 0 auto; padding: 0; }
+            .card.resultado { margin-top: 0; padding: 0; box-shadow: none; }
+            #registro-docente, .btn-imprimir, .nota-ia, .encabezado-app { display: none; }
+            
+            /* HACEMOS EL ENCABEZADO DE IMPRESIÓN VISIBLE */
+            .encabezado-impresion { display: block; padding-bottom: 5px; margin-bottom: 5px; }
+            
+            #datos-encabezado { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: #f8f8f8; border-left: 3px solid #004a99; font-size: 9pt; }
+            #tabla-planificacion-final thead th { background-color: #004a99 !important; color: white !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="encabezado-app">
+        <h1>PLANIFICACIÓN CURRICULAR PANAMÁ</h1>
+        <h2>Generación Asistida por IA</h2>
+    </header>
+
+    <main class="contenedor">
+        <section id="registro-docente" class="card">
+            <h3>Registro y Generación de Planificación 📝</h3>
+            <form id="datosDocenteForm" class="form-grid">
+                
+                <div class="form-full">
+                    <label for="docente">1. Nombre del Docente:</label>
+                    <input type="text" id="docente" value="" placeholder="Ej: ELKIS HERNÁN MORA CHÉRIGO" required>
+                </div>
+                <div class="form-full">
+                    <label for="colegio">2. Nombre del Colegio:</label>
+                    <input type="text" id="colegio" value="" placeholder="Ej: INSTITUTO JOSÉ DOLORES MOSCOTE" required>
+                </div>
+                <div class="form-full">
+                    <label for="correo">3. Correo (MEDUCA o Gmail):</label>
+                    <input type="email" id="correo" value="" placeholder="Ej: docente@meduca.edu.pa" required>
+                </div>
+                
+                <hr class="form-full" style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+
+                <div class="grid-span-1">
+                    <label for="grado">4. Grado / Nivel (7º - 12º):</label>
+                    <select id="grado" required>
+                        <option value="10º" selected>10º</option>
+                        <option value="11º">11º</option>
+                        <option value="12º">12º</option>
+                    </select>
+                </div>
+                <div class="grid-span-2">
+                    <label for="bachiller">5. Bachiller / Especialidad:</label>
+                    <select id="bachiller" required>
+                        <option value="CIENCIAS">Bachiller en Ciencias</option>
+                        <option value="HUMANIDADES">Bachiller en Humanidades</option>
+                        <option value="COMERCIO">Bachiller en Comercio</option>
+                        <option value="INFORMATICA" selected>Bachiller en Informática</option>
+                        <option value="AGROPECUARIA">Bachiller Agropecuaria</option>
+                        <option value="TURISMO">Bachiller en Turismo</option>
+                    </select>
+                </div>
+                <div class="grid-span-1">
+                    <label for="materia">6. Materia a Planificar:</label>
+                    <input type="text" id="materia" value="" placeholder="Ej: ROBÓTICA" required>
+                </div>
+                
+                <div class="grid-span-2">
+                    <label for="tema">7. TEMA:</label> 
+                    <input type="text" id="tema" value="" placeholder="Ej: Introducción a Sensores" required>
+                </div>
+                
+                <div class="grid-span-2">
+                    <label for="area">8. Área según el Currículo:</label>
+                    <input type="text" id="area" value="" placeholder="Área (Autocompletado o Manual)" required>
+                </div>
+                
+                <div class="grid-span-1">
+                    <label for="horasSemanales">9. Horas Semanales:</label>
+                    <input type="number" id="horasSemanales" value="" placeholder="Ej: 4" min="1" max="10" required>
+                </div>
+                <div class="grid-span-1">
+                    <label for="periodo">10. Trimestre:</label>
+                    <select id="periodo" required>
+                        <option value="I TRIMESTRE">I TRIMESTRE</option>
+                        <option value="II TRIMESTRE">II TRIMESTRE</option>
+                        <option value="III TRIMESTRE" selected>III TRIMESTRE</option>
+                    </select>
+                </div>
+
+                <div class="grid-span-2">
+                    <label for="tipoPlanificacion">11. Tipo de Planificación:</label>
+                    <select id="tipoPlanificacion" required>
+                        <option value="quincenal" selected>Quincenal</option>
+                        <option value="semanal">Semanal</option>
+                        <option value="trimestral">Trimestral</option>
+                    </select>
+                </div>
+                
+                <div class="grid-span-2">
+                    <label for="fechaInicio">12. Fecha de Inicio:</label>
+                    <input type="date" id="fechaInicio" required>
+                </div>
+                <div class="grid-span-2">
+                    <label for="fechaFin">13. Fecha de Finalización:</label>
+                    <input type="date" id="fechaFin" required>
+                </div>
+                
+                <div class="form-full">
+                    <label for="idioma">14. Idioma de Generación:</label>
+                    <select id="idioma" required>
+                        <option value="es" selected>Español</option>
+                        <option value="en">Inglés</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-principal">Generar Planificación con IA</button>
+            </form>
+        </section>
+
+        <section id="planificador-resultado" class="card resultado" style="display:none;">
+
+            <header class="encabezado-impresion">
+                <h1>REPÚBLICA DE PANAMÁ</h1>
+                <h2>MINISTERIO DE EDUCACIÓN</h2>
+                <h3 id="displayColegioPlan"></h3>
+                <h4 id="displayTipoPlan"></h4>
+            </header>
+            
+            <div id="datos-encabezado">
+                <div class="linea-datos">
+                    <p class="dato-item"><strong>NOMBRE DE LA ASIGNATURA:</strong> <span id="displayMateria"></span></p>
+                    <p class="dato-item"><strong>GRADO:</strong> <span id="displayGrado"></span></p>
+                    <p class="dato-item"><strong>BACHILLER:</strong> <span id="displayBachiller"></span></p>
+                    <p class="dato-item" style="flex-grow: 2;"><strong>DOCENTE:</strong> <span id="displayDocente"></span></p>
+                </div>
+                <div class="linea-datos">
+                    <p class="dato-item"><strong>PERIODO:</strong> <span id="displayPeriodo"></span></p>
+                    <p class="dato-item"><strong>DURACIÓN:</strong> <span id="displayDuracion"></span></p>
+                    <p class="dato-item" style="flex-grow: 2;"><strong>HORAS SEMANALES:</strong> <span id="displayHoras"></span></p>
+                </div>
+                <div class="linea-datos">
+                    <p class="dato-item" style="flex-grow: 2;"><strong>ÁREA CURRICULAR:</strong> <span id="displayArea"></span></p> 
+                    <p class="dato-item tema-central" style="flex-grow: 2;"><strong>TEMA CENTRAL:</strong> <span id="displayTema"></span></p> 
+                </div>
+            </div>
+            
+            <div id="contenido-ia">
+                <table id="tabla-planificacion-final">
+                    <thead>
+                        <tr>
+                            <th colspan="2">OBJETIVOS DE APRENDIZAJE</th>
+                            <th colspan="2">METAS DE APRENDIZAJE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="objAprendizaje" colspan="2">...</td>
+                            <td id="metasAprendizaje" colspan="2">...</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th colspan="2">INDICADORES DE LOGROS</th>
+                            <th colspan="2">APRENDIZAJE FUNDAMENTAL (DFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="indicadoresLogros" colspan="2">...</td>
+                            <td id="dfa" colspan="2">...</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>ACTIVIDADES DE APRENDIZAJE</th>
+                            <th>EVIDENCIA DE APRENDIZAJE</th>
+                            <th>CRITERIOS DE EVALUACIÓN</th>
+                            <th>TIPOS DE EVALUACIÓN - INSTRUMENTOS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="actividades">...</td>
+                            <td id="evidencia">...</td>
+                            <td id="criterios">...</td>
+                            <td id="evaluacion">...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="actividades-detalle">
+                <h5>Detalle de Actividades por Semanas</h5>
+                <p>
+                    **CÁLCULO SEMANAL:** La dosificación abarca <span id="displaySemanas"></span> semanas. <br>
+                    **DURACIÓN POR SEMANA:** Cada semana cuenta con <span id="displayHorasTotalesMinutos"></span> minutos de clase.
+                </p>
+                <table id="tabla-actividades-semanales">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">SEMANA</th>
+                            <th style="width: 28%;">INICIO (Motivación/Exploración)</th>
+                            <th style="width: 35%;">DESARROLLO (Construcción/Práctica)</th>
+                            <th style="width: 22%;">CIERRE (Evaluación/Reflexión)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actividades-semanales-body"></tbody>
+                </table>
+            </div>
+
+            <div id="firmas">
+                <div class="firma-columna"><hr><p>Firma del Docente</p></div>
+                <div class="firma-columna"><hr><p>Firma del Coordinador / Director</p></div>
+            </div>
+            
+            <button onclick="window.print()" class="btn-principal btn-imprimir">🖨️ Imprimir a PDF (Formato Horizontal)</button>
+        </section>
+    </main>
+
+    <script type="module">
+        // Importación MODERNA
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        // 🛑🛑🛑 PASO CLAVE: PEGA AQUÍ TU CLAVE DE API REAL 🛑🛑🛑
+        const API_KEY = "AIzaSyBMup4vkeWe7Dgs7u5oHinBuMifkTFsd0U"; 
+
+        // Inicialización segura con el modelo CORREGIDO a 1.5-flash
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // CORRECCIÓN FINAL
+
+        // Base de datos curricular simplificada para autocompletado
+        const curiculoPanama = {
+            "10º": { "INFORMATICA": [{nombre: "ROBÓTICA", area: "Tecnología"}, {nombre: "PROGRAMACIÓN", area: "Tecnología"}], "CIENCIAS": [{nombre: "BIOLOGÍA", area: "Ciencias Naturales"}] },
+            "11º": { "INFORMATICA": [{nombre: "REDES", area: "Tecnología"}] }
+        };
+
+        // Función para autocompletar Área
+        window.actualizarAreaPorMateria = function() {
+            const grado = document.getElementById('grado').value;
+            const bachiller = document.getElementById('bachiller').value;
+            const materiaInput = document.getElementById('materia');
+            const areaInput = document.getElementById('area');
+            const materiaNombre = materiaInput.value.toUpperCase().trim(); 
+
+            areaInput.value = ''; // Limpiamos el área antes de buscar
+
+            const materiasDisponibles = curiculoPanama[grado] && curiculoPanama[grado][bachiller];
+            if (materiasDisponibles) {
+                const materiaEncontrada = materiasDisponibles.find(m => 
+                    m.nombre.toUpperCase().includes(materiaNombre) || materiaNombre.includes(m.nombre.toUpperCase())
+                );
+                if (materiaEncontrada) areaInput.value = materiaEncontrada.area;
+            }
+        };
+
+        // Listeners para autocompletado
+        document.getElementById('materia').addEventListener('input', window.actualizarAreaPorMateria);
+        document.getElementById('grado').addEventListener('change', window.actualizarAreaPorMateria);
+        document.getElementById('bachiller').addEventListener('change', window.actualizarAreaPorMateria);
+        document.addEventListener('DOMContentLoaded', window.actualizarAreaPorMateria);
+
+
+        // Función auxiliar para limpiar texto de IA
+        function parsearTexto(texto) {
+            if (!texto) return '...';
+            let textoLimpio = texto.replace(/\*\*/g, "").replace(/\*/g, "");
+            let items = textoLimpio.split(/|\.-|\-\s*/).filter(item => item.trim() !== '');
+            if (items.length > 1) {
+                let html = '<ul>';
+                items.forEach(item => html += `<li>${item.replace(/^[\.-]\s*/, '').replace(/\.$/, '')}</li>`);
+                return html + '</ul>';
+            }
+            return textoLimpio;
+        }
+
+        // --- FUNCIONES DE LA API DE GEMINI REALES ---
+
+        /**
+         * Función REAL de llamada a la API para la Matriz Principal.
+         */
+        async function generarPlanificacionIA(materia, tipoPlanificacion, tema, grado, bachiller, idioma) {
+            const lang = idioma === 'en' ? 'in English' : 'en Español';
+            
+            const promptTexto = `
+                Eres un experto en currículo del Ministerio de Educación de Panamá (MEDUCA) para la materia de ${materia} en el nivel ${grado} (${bachiller}).
+                Genera una planificación ${tipoPlanificacion} sobre el tema "${tema}" ${lang}.
+                
+                IMPORTANTE: Devuelve SOLO un objeto JSON válido con este formato exacto, sin texto adicional ni markdown:
+                {
+                    "objetivos": "Lista de objetivos...",
+                    "metas": "Lista de metas...",
+                    "indicadores": "Lista de indicadores...",
+                    "dfa": "Aprendizaje fundamental...",
+                    "actividades": "Lista de actividades...",
+                    "evidencia": "Lista de evidencias...",
+                    "criterios": "Lista de criterios...",
+                    "evaluacion": "Tipos e instrumentos..."
+                }
+            `;
+
+            try {
+                const result = await model.generateContent(promptTexto);
+                const response = result.response;
+                const text = response.text();
+                
+                const jsonString = text.replace(/```json|```/g, '').trim();
+                return JSON.parse(jsonString);
+
+            } catch (error) {
+                console.error('Error en la llamada a la Matriz Principal:', error);
+                alert(`Error al conectar con la API (Matriz Principal). Verifique la consola y su clave.`);
+                return null;
+            }
+        }
+
+        /**
+         * Función REAL de llamada a la API para las Actividades Semanales.
+         */
+        async function generarActividadesDetalladas(materia, idioma, semanas) {
+            const lang = idioma === 'en' ? 'in English' : 'en Español';
+            const prompt = `Genera ${semanas} pares de actividades de INICIO, DESARROLLO y CIERRE, adecuadas para la materia ${materia}. Formato JSON array sin markdown: [{"semana": 1, "inicio": "...", "desarrollo": "...", "cierre": "..."}]`;
+            
+             try {
+                const result = await model.generateContent(prompt);
+                const text = result.response.text();
+                const jsonString = text.replace(/```json|```/g, '').trim();
+                return JSON.parse(jsonString);
+
+            } catch (error) {
+                console.error('Error en la llamada a la API para Actividades Semanales:', error);
+                return [];
+            }
+        }
+
+
+        // Manejo del Formulario
+        document.getElementById('datosDocenteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const datos = {
+                docente: document.getElementById('docente').value.trim() || 'Docente',
+                colegio: document.getElementById('colegio').value.trim() || 'Colegio',
+                grado: document.getElementById('grado').value,
+                bachiller: document.getElementById('bachiller').value,
+                materia: document.getElementById('materia').value.trim(),
+                tema: document.getElementById('tema').value.trim(),
+                area: document.getElementById('area').value.trim(),
+                horas: parseInt(document.getElementById('horasSemanales').value) || 4,
+                periodo: document.getElementById('periodo').value,
+                plan: document.getElementById('tipoPlanificacion').value,
+                idioma: document.getElementById('idioma').value,
+                fInicio: document.getElementById('fechaInicio').value,
+                fFin: document.getElementById('fechaFin').value
+            };
+
+            const areaEsValida = !datos.area.toUpperCase().includes("DESCONOCIDA") && datos.area.length > 2;
+            if (!datos.materia || !datos.tema || !datos.area || !areaEsValida) {
+                alert("ERROR: Por favor, complete los campos (Materia, Tema, Docente, Colegio) y asegúrese de que el Área (8) contenga un valor válido.");
+                return;
+            }
+
+            // Mostrar UI de carga
+            const resultadoDiv = document.getElementById('planificador-resultado');
+            resultadoDiv.style.display = 'block';
+            document.getElementById('contenido-ia').innerHTML = '<p style="text-align:center; padding:20px;">⌛ Generando Matriz Principal...</p>';
+            document.getElementById('actividades-semanales-body').innerHTML = '<tr><td colspan="4" style="text-align:center;">⌛ Generando actividades detalladas...</td></tr>';
+            resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+
+            // Cálculos de fecha
+            let semanasReales = 1;
+            let duracionTexto = "";
+            let minutosTotal = 0;
+
+            if(datos.fInicio && datos.fFin) {
+                const inicio = new Date(datos.fInicio);
+                const fin = new Date(datos.fFin);
+                const diffTime = Math.abs(fin - inicio);
+                semanasReales = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7)) || 1;
+                duracionTexto = `Del ${datos.fInicio} al ${datos.fFin}`;
+            }
+            
+            minutosTotal = datos.horas * 35;
+
+            // Actualizar encabezado
+            document.getElementById('displayDocente').textContent = datos.docente;
+            document.getElementById('displayMateria').textContent = datos.materia;
+            document.getElementById('displayGrado').textContent = datos.grado;
+            document.getElementById('displayBachiller').textContent = datos.bachiller;
+            document.getElementById('displayPeriodo').textContent = datos.periodo;
+            document.getElementById('displayTema').textContent = datos.tema;
+            document.getElementById('displayArea').textContent = datos.area;
+            document.getElementById('displayHoras').textContent = datos.horas + ' HRS';
+            document.getElementById('displayDuracion').textContent = duracionTexto;
+            document.getElementById('displayColegioPlan').textContent = datos.colegio.toUpperCase();
+            document.getElementById('displayTipoPlan').textContent = "PLANIFICACIÓN " + datos.plan.toUpperCase();
+            document.getElementById('displaySemanas').textContent = semanasReales;
+            document.getElementById('displayHorasTotalesMinutos').textContent = `${minutosTotal} min. (${datos.horas} x 35 min)`;
+
+            // Llamadas a la API
+            const [dataIA, dataSemanal] = await Promise.all([
+                generarPlanificacionIA(datos.materia, datos.plan, datos.tema, datos.grado, datos.bachiller, datos.idioma),
+                generarActividadesDetalladas(datos.materia, datos.idioma, semanasReales)
+            ]);
+
+            // Renderizado de resultados
+            if (dataIA) {
+                document.getElementById('contenido-ia').innerHTML = `
+                <table id="tabla-planificacion-final">
+                    <thead><tr><th colspan="2">OBJETIVOS DE APRENDIZAJE</th><th colspan="2">METAS DE APRENDIZAJE</th></tr></thead>
+                    <tbody><tr><td colspan="2">${parsearTexto(dataIA.objetivos)}</td><td colspan="2">${parsearTexto(dataIA.metas)}</td></tr></tbody>
+                    <thead><tr><th colspan="2">INDICADORES DE LOGROS</th><th colspan="2">APRENDIZAJE FUNDAMENTAL (DFA)</th></tr></thead>
+                    <tbody><tr><td colspan="2">${parsearTexto(dataIA.indicadores)}</td><td colspan="2">${parsearTexto(dataIA.dfa)}</td></tr></tbody>
+                    <thead><tr><th>ACTIVIDADES DE APRENDIZAJE</th><th>EVIDENCIA DE APRENDIZAJE</th><th>CRITERIOS DE EVALUACIÓN</th><th>TIPOS DE EVALUACIÓN - INSTRUMENTOS</th></tr></thead>
+                    <tbody><tr>
+                        <td>${parsearTexto(dataIA.actividades)}</td>
+                        <td>${parsearTexto(dataIA.evidencia)}</td>
+                        <td>${parsearTexto(dataIA.criterios)}</td>
+                        <td>${parsearTexto(dataIA.evaluacion)}</td>
+                    </tr></tbody>
+                </table>`;
+            } else {
+                 document.getElementById('contenido-ia').innerHTML = `<p style="color:red; text-align:center;">No se pudo generar la Matriz Principal. Verifique la Consola (F12).</p>`;
+            }
+
+            if (dataSemanal && dataSemanal.length > 0) {
+                let htmlSemanas = '';
+                dataSemanal.forEach(s => {
+                    htmlSemanas += `<tr><td style="text-align:center; font-weight:bold;">Semana ${s.semana}</td><td>${s.inicio}</td><td>${s.desarrollo}</td><td>${s.cierre}</td></tr>`;
+                });
+                document.getElementById('actividades-semanales-body').innerHTML = htmlSemanas;
+            } else {
+                 document.getElementById('actividades-semanales-body').innerHTML = `<tr><td colspan="4" style="text-align:center;">No se pudo generar el detalle semanal.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>
